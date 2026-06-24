@@ -82,20 +82,22 @@ export default function MatchDetail() {
       </div>
 
       {/* Team links */}
-      <div className="mt-6 flex gap-4">
-        <Link
-          to={`/teams/${match.homeTeam?._id}`}
-          className="flex-1 text-center text-sm bg-gray-100 hover:bg-gray-200 rounded-lg py-2 font-medium transition-colors"
-        >
-          {match.homeTeam?.name} page
-        </Link>
-        <Link
-          to={`/teams/${match.awayTeam?._id}`}
-          className="flex-1 text-center text-sm bg-gray-100 hover:bg-gray-200 rounded-lg py-2 font-medium transition-colors"
-        >
-          {match.awayTeam?.name} page
-        </Link>
-      </div>
+      {match.homeTeam?.teamRef && match.awayTeam?.teamRef && (
+        <div className="mt-6 flex gap-4">
+          <Link
+            to={`/teams/${match.homeTeam.teamRef}`}
+            className="flex-1 text-center text-sm bg-gray-100 hover:bg-gray-200 rounded-lg py-2 font-medium transition-colors"
+          >
+            {match.homeTeam.name} page
+          </Link>
+          <Link
+            to={`/teams/${match.awayTeam.teamRef}`}
+            className="flex-1 text-center text-sm bg-gray-100 hover:bg-gray-200 rounded-lg py-2 font-medium transition-colors"
+          >
+            {match.awayTeam.name} page
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
