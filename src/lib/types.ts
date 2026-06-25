@@ -16,6 +16,7 @@ export interface Score {
 export interface Match {
   _id: string
   externalId: number
+  espnId: number | null
   leagueId: string
   homeTeam: Team
   awayTeam: Team
@@ -64,6 +65,81 @@ export interface Standing {
   entries: StandingEntry[]
 }
 
+export interface MatchEvent {
+  _id: string
+  matchId: string
+  espnEventId: string | null
+  type: 'goal' | 'ownGoal' | 'yellowCard' | 'redCard' | 'yellowRedCard' | 'substitution'
+        | 'penalty' | 'missedPenalty' | 'var' | 'kickoff' | 'halftime' | 'fulltime'
+        | 'startDelay' | 'endDelay' | 'startHalf' | 'other'
+  minute: number | null
+  extraMinute: number | null
+  period: number
+  teamName: string | null
+  playerName: string | null
+  playerOut: string | null
+  description: string | null
+  scoringPlay: boolean
+  sortOrder: number
+}
+
+export interface TeamStats {
+  teamName: string | null
+  possessionPct: number | null
+  totalShots: number | null
+  shotsOnTarget: number | null
+  foulsCommitted: number | null
+  wonCorners: number | null
+  saves: number | null
+  yellowCards: number | null
+  redCards: number | null
+  offsides: number | null
+  totalPasses: number | null
+  accuratePasses: number | null
+  passPct: number | null
+  blockedShots: number | null
+  totalTackles: number | null
+  interceptions: number | null
+  totalClearance: number | null
+}
+
+export interface MatchStats {
+  _id: string
+  matchId: string
+  espnEventId: number | null
+  homeTeam: TeamStats
+  awayTeam: TeamStats
+  lastSyncedAt: string | null
+}
+
+export interface LineupPlayer {
+  jersey: string | null
+  playerName: string | null
+  athleteId: string | null
+  position: string | null
+  isStarter: boolean
+  isCaptain: boolean
+  subbedIn: boolean
+  subbedOut: boolean
+  formationPlace: number | null
+  active: boolean
+}
+
+export interface TeamLineup {
+  teamName: string | null
+  formation: string | null
+  players: LineupPlayer[]
+}
+
+export interface MatchLineup {
+  _id: string
+  matchId: string
+  espnEventId: number | null
+  homeTeam: TeamLineup
+  awayTeam: TeamLineup
+  lastSyncedAt: string | null
+}
+
 export interface PaginatedResponse<T> {
   success: boolean
   data: T[]
@@ -76,4 +152,9 @@ export interface PaginatedResponse<T> {
 export interface SingleResponse<T> {
   success: boolean
   data: T
+}
+
+export interface ArrayResponse<T> {
+  success: boolean
+  data: T[]
 }

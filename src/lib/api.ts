@@ -1,4 +1,7 @@
-import type { Match, League, Team, Standing, PaginatedResponse, SingleResponse } from './types'
+import type {
+  Match, League, Team, Standing, MatchEvent, MatchStats, MatchLineup,
+  PaginatedResponse, SingleResponse, ArrayResponse,
+} from './types'
 
 const BASE = '/api/v1'
 
@@ -14,6 +17,12 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
   return res.json()
 }
 
+async function post<T>(path: string): Promise<T> {
+  const res = await fetch(path, { method: 'POST' })
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`)
+  return res.json()
+}
+
 export const api = {
   // Matches
   matches: {
@@ -25,6 +34,12 @@ export const api = {
     recent: (limit = 20) =>
       get<{ success: boolean; data: Match[] }>(`${BASE}/matches/recent`, { limit: String(limit) }),
     byId: (id: string) => get<SingleResponse<Match>>(`${BASE}/matches/${id}`),
+    events: (id: string) => get<ArrayResponse<MatchEvent>>(`${BASE}/matches/${id}/events`),
+    stats: (id: string) => get<{ success: boolean; data: MatchStats | null }>(`${BASE}/matches/${id}/stats`),
+    lineups: (id: string) => get<{ success: boolean; data: MatchLineup | null }>(`${BASE}/matches/${id}/lineups`),
+    scrape: (id: string) => post<{ success: boolean; data: unknown }>(`${BASE}/matches/${id}/scrape`),
+    mapEspn: () => get<{ success: boolean; data: unknown }>(`${BASE}/matches/map-espn`),
+    scrapeAll: () => post<{ success: boolean; data: unknown }>(`${BASE}/matches/scrape-all`),
   },
 
   // Leagues

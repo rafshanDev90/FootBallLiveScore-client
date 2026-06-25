@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom'
 import type { Match } from '../lib/types'
+import { Link } from 'react-router-dom'
+import { formatLocalDateTime } from '../lib/date'
 
 interface Props {
   match: Match
@@ -10,84 +11,94 @@ export default function HeroMatchCard({ match }: Props) {
   const isFinished = match.status === 'finished'
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-bg-card via-bg-card to-[#1a1f33] border border-border-dark">
-      {/* Background accent glow */}
-      {isLive && (
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-live/10 rounded-full blur-3xl" />
-      )}
+    <Link
+      to={`/matches/${match._id}`}
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-bg-card via-bg-card to-[#1a1f33] border border-border-dark block hover:border-accent/30 transition-colors"
+    >
+      {/* Accent glow */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl" />
+      <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl" />
 
-      <div className="relative px-4 py-5">
+      <div className="relative px-6 py-6 md:py-8">
         {/* Status bar */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-center mb-5">
           {isLive ? (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-live/10 border border-live/20">
               <span className="w-2 h-2 rounded-full bg-live animate-pulse" />
-              <span className="text-xs font-bold text-live uppercase tracking-wider">Live</span>
+              <span className="text-xs font-bold text-live uppercase tracking-widest">Live</span>
               {match.minute != null && (
-                <span className="text-xs text-live font-semibold">{match.minute}&rsquo;</span>
+                <span className="text-xs font-semibold text-live/80">{match.minute}&rsquo;</span>
               )}
             </div>
+          ) : isFinished ? (
+            <div className="px-3 py-1 rounded-full bg-white/5 border border-border-dark">
+              <span className="text-xs font-medium text-text-secondary uppercase tracking-widest">Full Time</span>
+            </div>
           ) : (
-            <span className="text-xs text-text-muted uppercase tracking-wider">
-              {isFinished ? 'Full Time' : 'Upcoming'}
-            </span>
+            <div className="px-3 py-1 rounded-full bg-white/5 border border-border-dark">
+              <span className="text-xs font-medium text-text-secondary uppercase tracking-widest">Scheduled</span>
+            </div>
           )}
         </div>
 
         {/* Teams & Score */}
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex items-center justify-center gap-2 md:gap-8 mb-5">
           {/* Home team */}
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-bg-base flex items-center justify-center overflow-hidden">
+          <div className="flex-1 flex flex-col items-center gap-3">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bg-base/50 flex items-center justify-center overflow-hidden ring-1 ring-white/5">
               {match.homeTeam?.flag ? (
-                <img src={match.homeTeam.flag} alt="" className="w-8 h-8 object-contain" />
+                <img src={match.homeTeam.flag} alt="" className="w-11 h-11 md:w-14 md:h-14 object-contain" />
               ) : (
-                <span className="text-lg font-bold text-text-muted">
+                <span className="text-2xl font-bold text-text-muted">
                   {match.homeTeam?.name?.charAt(0) || '?'}
                 </span>
               )}
             </div>
-            <span className="text-sm font-semibold text-white text-center truncate max-w-28">
+            <span className="text-sm md:text-base font-semibold text-white text-center truncate max-w-32 md:max-w-40">
               {match.homeTeam?.name || 'TBD'}
             </span>
           </div>
 
           {/* Score */}
-          <div className="shrink-0 text-center">
-            <div className="text-3xl font-bold tabular-nums text-white">
-              <span>{match.score?.fulltime?.home ?? '-'}</span>
-              <span className="mx-2 text-text-muted">:</span>
-              <span>{match.score?.fulltime?.away ?? '-'}</span>
-            </div>
+          <div className="shrink-0 flex items-baseline gap-1.5">
+            <span className={`text-4xl md:text-5xl font-bold tabular-nums ${isLive ? 'text-live' : 'text-white'}`}>
+              {match.score?.fulltime?.home ?? '-'}
+            </span>
+            <span className="text-3xl md:text-4xl font-light text-text-muted">:</span>
+            <span className={`text-4xl md:text-5xl font-bold tabular-nums ${isLive ? 'text-live' : 'text-white'}`}>
+              {match.score?.fulltime?.away ?? '-'}
+            </span>
           </div>
 
           {/* Away team */}
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-bg-base flex items-center justify-center overflow-hidden">
+          <div className="flex-1 flex flex-col items-center gap-3">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bg-base/50 flex items-center justify-center overflow-hidden ring-1 ring-white/5">
               {match.awayTeam?.flag ? (
-                <img src={match.awayTeam.flag} alt="" className="w-8 h-8 object-contain" />
+                <img src={match.awayTeam.flag} alt="" className="w-11 h-11 md:w-14 md:h-14 object-contain" />
               ) : (
-                <span className="text-lg font-bold text-text-muted">
+                <span className="text-2xl font-bold text-text-muted">
                   {match.awayTeam?.name?.charAt(0) || '?'}
                 </span>
               )}
             </div>
-            <span className="text-sm font-semibold text-white text-center truncate max-w-28">
+            <span className="text-sm md:text-base font-semibold text-white text-center truncate max-w-32 md:max-w-40">
               {match.awayTeam?.name || 'TBD'}
             </span>
           </div>
         </div>
 
-        {/* CTA */}
+        {/* Venue & Date */}
         <div className="text-center">
-          <Link
-            to={`/matches/${match._id}`}
-            className="inline-block px-5 py-1.5 text-xs font-semibold text-white bg-accent hover:bg-accent-hover rounded-full transition-colors"
-          >
-            Match Centre
-          </Link>
+          <p className="text-xs text-text-muted">
+            {match.localDate && formatLocalDateTime(match.localDate)}
+          </p>
+          {(match.round || match.group) && (
+            <p className="text-xs text-text-muted mt-0.5">
+              {match.round}{match.round && match.group ? ' · ' : ''}{match.group}
+            </p>
+          )}
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
