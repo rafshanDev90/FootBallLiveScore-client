@@ -116,6 +116,7 @@ export interface LineupPlayer {
   jersey: string | null
   playerName: string | null
   athleteId: string | null
+  headshot: string | null
   position: string | null
   isStarter: boolean
   isCaptain: boolean
