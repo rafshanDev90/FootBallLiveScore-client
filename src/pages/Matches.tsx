@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import type { Match } from '../lib/types'
-import MatchCard from '../components/MatchCard'
+import MatchScheduleTable from '../components/MatchScheduleTable'
 
 const STATUSES = ['all', 'scheduled', 'live', 'finished'] as const
 
@@ -36,8 +36,8 @@ export default function Matches() {
   }, [page, status])
 
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Matches</h1>
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <h1 className="text-xl font-bold text-white mb-4">Matches</h1>
 
       {/* Filter tabs */}
       <div className="flex gap-1 mb-4">
@@ -47,8 +47,8 @@ export default function Matches() {
             onClick={() => setStatus(s)}
             className={`px-3 py-1.5 text-sm rounded-md font-medium transition-colors capitalize ${
               status === s
-                ? 'bg-gray-800 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-accent text-white'
+                : 'bg-bg-card text-text-secondary hover:bg-bg-card-hover'
             }`}
           >
             {s === 'all' ? 'All' : s}
@@ -58,35 +58,33 @@ export default function Matches() {
 
       {/* List */}
       {loading ? (
-        <div className="text-center py-20 text-gray-400">Loading...</div>
-      ) : matches.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">No matches found</div>
+        <div className="text-center py-20 text-text-muted">Loading...</div>
       ) : (
         <>
-          <div className="space-y-2 mb-4">
-            {matches.map((m) => <MatchCard key={m._id} match={m} />)}
-          </div>
+          <MatchScheduleTable matches={matches} emptyMessage="No matches found" />
 
           {/* Pagination */}
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <button
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-3 py-1 rounded border disabled:opacity-30 hover:bg-gray-100"
-            >
-              Prev
-            </button>
-            <span className="text-gray-500">
-              Page {page} of {pages} ({total} total)
-            </span>
-            <button
-              disabled={page >= pages}
-              onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              className="px-3 py-1 rounded border disabled:opacity-30 hover:bg-gray-100"
-            >
-              Next
-            </button>
-          </div>
+          {pages > 1 && (
+            <div className="flex items-center justify-center gap-2 text-sm mt-4">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="px-3 py-1 rounded-md border border-border-dark bg-bg-card text-text-secondary hover:bg-bg-card-hover disabled:opacity-30 transition-colors"
+              >
+                Prev
+              </button>
+              <span className="text-text-muted">
+                Page {page} of {pages} ({total} total)
+              </span>
+              <button
+                disabled={page >= pages}
+                onClick={() => setPage((p) => Math.min(pages, p + 1))}
+                className="px-3 py-1 rounded-md border border-border-dark bg-bg-card text-text-secondary hover:bg-bg-card-hover disabled:opacity-30 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>

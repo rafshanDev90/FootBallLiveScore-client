@@ -1,9 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg-base: #0B0E14;
+  --color-bg-card: #131722;
+  --color-bg-card-hover: #1a1f33;
+  --color-accent: #6366F1;
+  --color-accent-hover: #7C3AED;
+  --color-live: #DC2626;
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border-dark: #1f2937;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
 }
 
 #root {

@@ -4,6 +4,8 @@ export interface Team {
   name: string
   country: string
   logo: string | null
+  flag: string | null
+  teamRef?: string
 }
 
 export interface Score {
@@ -22,6 +24,7 @@ export interface Match {
     halftime: Score
   }
   date: string
+  localDate: string | null
   status: 'scheduled' | 'live' | 'finished' | 'cancelled'
   minute: number | null
   round: string
@@ -43,6 +46,7 @@ export interface StandingEntry {
   teamId: number
   teamName: string
   teamLogo: string | null
+  teamFlag: string | null
   played: number
   won: number
   drawn: number
