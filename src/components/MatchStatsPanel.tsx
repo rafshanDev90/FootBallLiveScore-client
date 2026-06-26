@@ -5,6 +5,8 @@ import type { MatchStats, TeamStats } from '../lib/types'
 interface Props {
   matchId: string
   compact?: boolean
+  homeLogo?: string | null
+  awayLogo?: string | null
 }
 
 interface StatRow {
@@ -15,37 +17,31 @@ interface StatRow {
 
 const COMPACT_ROWS: StatRow[] = [
   { label: 'Possession', key: 'possessionPct', suffix: '%' },
-  { label: 'Shots on Target', key: 'shotsOnTarget' },
+  { label: 'Shots on target', key: 'shotsOnTarget' },
   { label: 'Corners', key: 'wonCorners' },
   { label: 'Fouls', key: 'foulsCommitted' },
-  { label: 'Yellow Cards', key: 'yellowCards' },
+  { label: 'Yellow cards', key: 'yellowCards' },
 ]
 
 const FULL_ROWS: StatRow[] = [
+  { label: 'Shots', key: 'totalShots' },
+  { label: 'Shots on target', key: 'shotsOnTarget' },
   { label: 'Possession', key: 'possessionPct', suffix: '%' },
-  { label: 'Total Shots', key: 'totalShots' },
-  { label: 'Shots on Target', key: 'shotsOnTarget' },
-  { label: 'Blocked Shots', key: 'blockedShots' },
-  { label: 'Corners', key: 'wonCorners' },
-  { label: 'Fouls', key: 'foulsCommitted' },
-  { label: 'Yellow Cards', key: 'yellowCards' },
-  { label: 'Red Cards', key: 'redCards' },
-  { label: 'Offsides', key: 'offsides' },
-  { label: 'Saves', key: 'saves' },
   { label: 'Passes', key: 'totalPasses' },
-  { label: 'Pass Accuracy', key: 'passPct', suffix: '%' },
-  { label: 'Tackles', key: 'totalTackles' },
-  { label: 'Interceptions', key: 'interceptions' },
-  { label: 'Clearances', key: 'totalClearance' },
+  { label: 'Pass accuracy', key: 'passPct', suffix: '%' },
+  { label: 'Fouls', key: 'foulsCommitted' },
+  { label: 'Yellow cards', key: 'yellowCards' },
+  { label: 'Red cards', key: 'redCards' },
+  { label: 'Offsides', key: 'offsides' },
+  { label: 'Corners', key: 'wonCorners' },
 ]
 
-function formatVal(val: number | null | undefined): string {
-  if (val === null || val === undefined) return '-'
-  if (Number.isInteger(val)) return String(val)
-  return val.toFixed(1)
+function formatVal(val: number | null | undefined): number | null {
+  if (val === null || val === undefined) return null
+  return val
 }
 
-export default function MatchStatsPanel({ matchId, compact }: Props) {
+export default function MatchStatsPanel({ matchId, compact, homeLogo, awayLogo }: Props) {
   const [stats, setStats] = useState<MatchStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -60,19 +56,14 @@ export default function MatchStatsPanel({ matchId, compact }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-        <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">
-          {compact ? 'Key Stats' : 'Match Stats'}
-        </h3>
-        <div className="space-y-3">
-          {rows.map((_, i) => (
-            <div key={i}>
-              <div className="flex justify-between text-xs text-text-muted mb-0.5">
-                <span className="animate-pulse bg-bg-card-hover rounded h-3 w-8" />
-                <span className="animate-pulse bg-bg-card-hover rounded h-3 w-12" />
-                <span className="animate-pulse bg-bg-card-hover rounded h-3 w-8" />
-              </div>
-              <div className="h-1.5 rounded-full bg-bg-base animate-pulse" />
+      <div className="bg-[#18181b] border border-zinc-800/80 rounded-xl p-4">
+        <div className="h-4 bg-zinc-800 rounded w-24 mx-auto mb-6 animate-pulse" />
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex justify-between items-center gap-4 animate-pulse">
+              <div className="w-8 h-5 bg-zinc-800 rounded" />
+              <div className="w-24 h-4 bg-zinc-800 rounded" />
+              <div className="w-8 h-5 bg-zinc-800 rounded" />
             </div>
           ))}
         </div>
@@ -80,57 +71,85 @@ export default function MatchStatsPanel({ matchId, compact }: Props) {
     )
   }
 
-  if (!stats) {
-    return (
-      <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-        <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">
-          {compact ? 'Key Stats' : 'Match Stats'}
-        </h3>
-        <div className="flex flex-col items-center justify-center py-6 text-text-muted">
-          <svg className="w-8 h-8 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          <p className="text-xs text-center">Scrape to see stats</p>
-        </div>
-      </div>
-    )
-  }
+  if (!stats) return null
 
   const home = stats.homeTeam
   const away = stats.awayTeam
 
   return (
-    <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-      <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">
-        {compact ? 'Key Stats' : 'Match Stats'}
-      </h3>
+    <div className="bg-[#18181b] border border-zinc-800/80 rounded-xl p-4 shadow-2xl">
+
+      {/* 1. Header Row (Team Logos/Flags Context) */}
+      <div className="grid grid-cols-3 items-center text-center border-b border-zinc-800 pb-3 mb-4">
+        <div className="flex justify-start pl-2">
+          {homeLogo ? (
+            <img src={homeLogo} alt="Home" className="w-6 h-4 object-cover rounded-[2px]" />
+          ) : (
+            <div className="w-6 h-4 bg-zinc-700 rounded-[2px]" />
+          )}
+        </div>
+        <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">
+          TEAM STATS
+        </span>
+        <div className="flex justify-end pr-2">
+          {awayLogo ? (
+            <img src={awayLogo} alt="Away" className="w-6 h-4 object-cover rounded-[2px]" />
+          ) : (
+            <div className="w-6 h-4 bg-zinc-700 rounded-[2px]" />
+          )}
+        </div>
+      </div>
+
+      {/* 2. Structured Stat Feed */}
       <div className="space-y-3">
         {rows.map((row) => {
-          const homeVal = home?.[row.key] as number | null | undefined
-          const awayVal = away?.[row.key] as number | null | undefined
+          const homeRaw = formatVal(home?.[row.key] as number)
+          const awayRaw = formatVal(away?.[row.key] as number)
 
-          if (homeVal === null && awayVal === null && homeVal === undefined && awayVal === undefined) return null
-          if (homeVal === null && homeVal === undefined) return null
-          if (awayVal === null && awayVal === undefined) return null
+          // Fallback if data fields are totally blank
+          if (homeRaw === null && awayRaw === null) return null
 
-          const hStr = formatVal(homeVal)
-          const aStr = formatVal(awayVal)
+          const hVal = homeRaw ?? 0
+          const aVal = awayRaw ?? 0
 
-          const maxVal = Math.max(homeVal ?? 0, awayVal ?? 0) || 1
-          const hPct = (homeVal ?? 0) / maxVal * 100
-          const aPct = (awayVal ?? 0) / maxVal * 100
+          // Determine who gets the highlight pill (highest value wins)
+          // Exception: For fouls, typically lower is better, but layouts usually highlight highest raw volume.
+          const isHomeWinner = hVal > aVal
+          const isAwayWinner = aVal > hVal
+
+          const hString = `${hVal}${row.suffix || ''}`
+          const aString = `${aVal}${row.suffix || ''}`
 
           return (
-            <div key={row.key}>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="font-semibold text-white w-12 text-right">{hStr}<span className="text-text-muted font-normal">{row.suffix || ''}</span></span>
-                <span className="text-text-muted uppercase text-[10px] tracking-wider font-medium px-2">{row.label}</span>
-                <span className="font-semibold text-white w-12">{aStr}<span className="text-text-muted font-normal">{row.suffix || ''}</span></span>
+            <div key={row.key} className="grid grid-cols-3 items-center text-center">
+              
+              {/* Left Value Slot */}
+              <div className="flex justify-start pl-2">
+                <span className={`text-xs font-mono font-bold min-w-[28px] h-7 flex items-center justify-center transition-all ${
+                  isHomeWinner 
+                    ? 'bg-blue-600 text-white rounded-full px-2' 
+                    : 'text-zinc-300'
+                }`}>
+                  {hString}
+                </span>
               </div>
-              <div className="flex h-2 gap-0.5 rounded-full overflow-hidden bg-bg-base">
-                <div className="bg-accent transition-all duration-500" style={{ width: `${hPct}%` }} />
-                <div className="bg-indigo-400/60 transition-all duration-500" style={{ width: `${aPct}%` }} />
+
+              {/* Central Metric Label */}
+              <span className="text-xs font-medium text-zinc-400 whitespace-nowrap">
+                {row.label}
+              </span>
+
+              {/* Right Value Slot */}
+              <div className="flex justify-end pr-2">
+                <span className={`text-xs font-mono font-bold min-w-[28px] h-7 flex items-center justify-center transition-all ${
+                  isAwayWinner 
+                    ? 'bg-zinc-100 text-black rounded-full px-2' 
+                    : 'text-zinc-300'
+                }`}>
+                  {aString}
+                </span>
               </div>
+
             </div>
           )
         })}

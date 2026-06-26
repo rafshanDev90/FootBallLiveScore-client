@@ -102,11 +102,11 @@ export default function MatchDetail() {
           {tab === 'Overview' && (
             <>
               <MatchTimeline matchId={match._id} />
-              <MatchStatsPanel matchId={match._id} compact />
+              <MatchStatsPanel matchId={match._id} compact homeLogo={match.homeTeam?.flag} awayLogo={match.awayTeam?.flag} />
             </>
           )}
           {tab === 'Stats' && (
-            <MatchStatsPanel matchId={match._id} />
+            <MatchStatsPanel matchId={match._id} homeLogo={match.homeTeam?.flag} awayLogo={match.awayTeam?.flag} />
           )}
           {tab === 'Lineups' && (
             <MatchFormationPitch matchId={match._id} />

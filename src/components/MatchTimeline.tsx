@@ -6,51 +6,44 @@ interface Props {
   matchId: string
 }
 
-const ICON_MAP: Record<string, string> = {
-  goal: '⚽',
-  ownGoal: '⚽',
-  penalty: '⚽',
-  missedPenalty: '❌',
-  yellowCard: '🟨',
-  redCard: '🟥',
-  substitution: '🔄',
-  var: '📺',
-}
-
 function formatMinute(minute: number | null, extraMinute: number | null): string {
   if (minute === null) return ''
   return extraMinute ? `${minute}+${extraMinute}'` : `${minute}'`
 }
 
-function EventIcon({ type }: { type: string }) {
-  const icon = ICON_MAP[type]
-  if (icon) return <span className="text-sm">{icon}</span>
+// Render the action type header with custom icons matching the image style
+function EventHeader({ type, minute }: { type: string; minute: string }) {
+  let title = type.toUpperCase()
+  let iconElement = null
 
-  if (type === 'goal' || type === 'ownGoal' || type === 'penalty') {
-    return (
-      <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-        <circle cx="10" cy="10" r="8" />
-      </svg>
-    )
-  }
   if (type === 'yellowCard') {
-    return (
-      <div className="w-3.5 h-4.5 rounded-[1px] bg-yellow-400 shadow-sm" />
+    title = 'YELLOW CARD'
+    iconElement = <div className="w-3 h-4 bg-yellow-400 rounded-[1px] shadow-sm" />
+  } else if (type === 'redCard') {
+    title = 'RED CARD'
+    iconElement = <div className="w-3 h-4 bg-red-600 rounded-[1px] shadow-sm" />
+  } else if (type === 'substitution') {
+    title = 'SUBSTITUTION'
+    iconElement = (
+      <div className="flex items-center gap-[2px] text-xs font-bold font-mono">
+        <span className="text-green-500">↑</span>
+        <span className="text-red-500">↓</span>
+      </div>
     )
+  } else if (type === 'goal' || type === 'penalty') {
+    title = type === 'penalty' ? 'PENALTY GOAL' : 'GOAL'
+    iconElement = <span className="text-sm">⚽</span>
   }
-  if (type === 'redCard') {
-    return (
-      <div className="w-3.5 h-4.5 rounded-[1px] bg-red-600 shadow-sm" />
-    )
-  }
-  if (type === 'substitution') {
-    return (
-      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-    )
-  }
-  return <span className="text-xs text-text-muted">•</span>
+
+  return (
+    <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-3">
+      <div className="flex items-center gap-2">
+        {iconElement}
+        <span className="text-xs font-bold text-zinc-100 tracking-wide">{title}</span>
+      </div>
+      <span className="text-xs font-semibold text-zinc-400 font-mono">{minute}</span>
+    </div>
+  )
 }
 
 export default function MatchTimeline({ matchId }: Props) {
@@ -66,98 +59,74 @@ export default function MatchTimeline({ matchId }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-        <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Timeline</h3>
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 animate-pulse">
-              <div className="w-10 h-4 bg-bg-card-hover rounded" />
-              <div className="w-4 h-4 bg-bg-card-hover rounded-full" />
-              <div className="flex-1 h-4 bg-bg-card-hover rounded" />
-            </div>
-          ))}
-        </div>
+      <div className="space-y-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="animate-pulse bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 h-36" />
+        ))}
       </div>
     )
   }
 
-  const visibleEvents = events.filter(
-    (ev) => ['goal', 'ownGoal', 'penalty', 'missedPenalty', 'yellowCard', 'redCard', 'substitution', 'var'].includes(ev.type),
+  const visibleEvents = events.filter((ev) =>
+    ['goal', 'ownGoal', 'penalty', 'missedPenalty', 'yellowCard', 'redCard', 'substitution', 'var'].includes(ev.type)
   )
 
   if (visibleEvents.length === 0) {
     return (
-      <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-        <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Timeline</h3>
-        <div className="text-center py-6">
-          <svg className="w-8 h-8 mx-auto mb-2 text-text-muted opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p className="text-xs text-text-muted">Scrape to see match events</p>
-        </div>
+      <div className="text-center py-8 bg-zinc-900/30 rounded-xl border border-zinc-800 p-4">
+        <p className="text-xs text-zinc-500">No match timeline events available.</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-border-dark bg-bg-card p-4">
-      <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Timeline</h3>
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-[60px] top-0 bottom-0 w-px bg-border-dark" />
+    <div className="space-y-4">
+      {visibleEvents.map((ev) => {
+        const timeStr = formatMinute(ev.minute, ev.extraMinute)
 
-        <div className="space-y-0">
-          {visibleEvents.map((ev) => (
-            <div key={ev._id} className="relative flex items-start gap-3 py-2 group">
-              {/* Time */}
-              <span className="w-10 flex-shrink-0 text-right text-text-muted font-mono text-xs leading-5 pt-0.5 z-10">
-                {formatMinute(ev.minute, ev.extraMinute)}
-              </span>
+        return (
+          <div key={ev._id} className="bg-[#18181b] border border-zinc-800/80 rounded-xl p-3 shadow-lg">
+            {/* 1. Header Row */}
+            <EventHeader type={ev.type} minute={timeStr} />
 
-              {/* Dot on timeline */}
-              <div className="relative z-10 flex items-center justify-center w-5 h-5 -ml-2.5">
-                <div className={`w-2 h-2 rounded-full ring-2 ring-bg-card ${
-                  ev.type === 'goal' || ev.type === 'ownGoal' || ev.type === 'penalty'
-                    ? 'bg-green-400'
-                    : ev.type === 'yellowCard'
-                    ? 'bg-yellow-400'
-                    : ev.type === 'redCard'
-                    ? 'bg-red-600'
-                    : ev.type === 'substitution'
-                    ? 'bg-blue-400'
-                    : 'bg-text-muted'
-                }`} />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0 pb-3 border-b border-border-dark/50 group-last:border-0">
-                <div className="flex items-center gap-1.5">
-                  <EventIcon type={ev.type} />
-                  <span className="text-xs font-medium text-white">
-                    {ev.playerName || ''}
-                  </span>
-                  {ev.playerOut && (
-                    <span className="text-xs text-text-muted">
-                      <svg className="w-3 h-3 inline mx-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                      {ev.playerOut}
-                    </span>
-                  )}
-                  {ev.teamName && !ev.playerOut && (
-                    <span className="text-[10px] text-text-muted ml-auto">{ev.teamName}</span>
-                  )}
+            {/* 2. Main Content Body */}
+            <div className="space-y-2">
+              {ev.type === 'substitution' ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <span className="block text-[10px] font-bold text-green-500 uppercase tracking-wider mb-0.5">IN</span>
+                      <h4 className="text-sm font-semibold text-zinc-100 truncate">{ev.playerName}</h4>
+                      <p className="text-xs text-zinc-400 truncate mt-0.5">{ev.teamName}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 pt-1">
+                    <div className="min-w-0">
+                      <span className="block text-[10px] font-bold text-red-500 uppercase tracking-wider mb-0.5">OUT</span>
+                      <h4 className="text-sm font-semibold text-zinc-100 truncate">{ev.playerOut}</h4>
+                      <p className="text-xs text-zinc-400 truncate mt-0.5">{ev.teamName}</p>
+                    </div>
+                  </div>
                 </div>
-                {ev.description && !ev.playerOut && (
-                  <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
-                    {ev.description.length > 100 ? ev.description.slice(0, 100) + '...' : ev.description}
-                  </p>
-                )}
-              </div>
+              ) : (
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-zinc-100 truncate">{ev.playerName}</h4>
+                    <p className="text-xs text-zinc-400 truncate mt-0.5">{ev.teamName}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Narrative Live Text Description */}
+              {ev.description && (
+                <p className="text-xs text-zinc-400 border-t border-zinc-800/50 pt-2 leading-relaxed">
+                  {ev.description}
+                </p>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
